@@ -17,6 +17,7 @@ type MilitaryType = "barracks" | "naval_base" | "airfield" | "training_area" | "
 // Typ danych GeoJSON
 type GeoJSONData = GeoJSON.FeatureCollection;
 
+
 // ---- LISTA TYPÓW ----
 const MILITARY_TYPES: MilitaryType[] = [
   "barracks",
