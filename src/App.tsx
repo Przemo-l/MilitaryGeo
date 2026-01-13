@@ -1,4 +1,3 @@
-// Importujemy potrzebne elementy z biblioteki react-leaflet.
 // MapContainer – główny kontener mapy
 // TileLayer – warstwa kafelków
 // useMap – hook pozwalający uzyskać dostęp do instancji mapy
