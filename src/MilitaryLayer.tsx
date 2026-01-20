@@ -17,13 +17,10 @@ type MilitaryType = "barracks" | "naval_base" | "airfield" | "training_area" | "
 // Typ danych GeoJSON
 type GeoJSONData = GeoJSON.FeatureCollection;
 
-<<<<<<< new
-=======
 
 
 
 
->>>>>>> local
 // ---- LISTA TYPÓW ----
 const MILITARY_TYPES: MilitaryType[] = [
   "barracks",
@@ -39,7 +36,6 @@ const MILITARY_TYPES: MilitaryType[] = [
 ];
 
 // ---- ETYKIETY ----
-// Dodałem typowanie <MilitaryType, string> dla lepszej kontroli błędów
 const MILITARY_LABELS: Record<MilitaryType, string> = {
   barracks: "Koszary",
   naval_base: "Baza morska",
@@ -57,7 +53,6 @@ const MILITARY_LABELS: Record<MilitaryType, string> = {
 export default function MilitaryOSMLayer() {
   const [militaryType, setMilitaryType] = useState<MilitaryType>("naval_base");
 
-  // TODO: Dodaj typowanie dla danych (GeoJSONData | null)
   const [data, setData] = useState<GeoJSONData | null>(null);
 
   // TODO: Dodaj obsługę błędów w UI (np. komunikat "Nie udało się pobrać danych")
@@ -68,42 +63,32 @@ export default function MilitaryOSMLayer() {
   const map = useMap();
 
   // ---- FUNKCJA POBIERANIA DANYCH ----
-  const fetchData = async (type: MilitaryType) => {
+  const fetchData = async (type) => { //żeby nie blokać wątków jest async
     setLoading(true);
     setData(null);
+    
+    const url = `/data/${type}.json`; //adres zasobu to url
 
-    const query = `
-      [out:json][timeout:60];
-      area["ISO3166-1"="DE"]->.a;
-      (
-        way["military"="${type}"](area.a);
-        relation["military"="${type}"](area.a);
-      );
-      out geom;
-    `;
-
-    const requestUrl =
-      "https://overpass.kumi.systems/api/interpreter?data=" +
-      encodeURIComponent(query);
-
-    try {
-      // const res = ... TODO Wykorzystaj axios w celu obsługi requestUrl
-      const res = await axios.get(requestUrl);
-
-      // TODO: Zbadaj strukturę danych res.data w konsoli
-      console.log(res.data);
-
-      // const geojson = ... Wykorzystaj bibliotekę osmtogeojson
-      const geojson = osmtogeojson(res.data);
-
-      // TODO setData(geojson);
-      setData(geojson as GeoJSONData);
-    } catch (e) {
-      console.error("Błąd Overpass:", e);
-      // TODO: Dodaj setData(null) i komunikat błędu w UI
-    } finally {
-      setLoading(false);
+    try {//coś co moze się scrachować
+          const result = await fetch(url) //promise resoponce sę zda nam póziej rezulstat
+    
+    if (!result.ok) {
+        console.error("Nie znaleziono pliku", url);
+        setLoading(false);
+        return;
     }
+
+    const geojson = await result.json()
+    setData(geojson);
+    }
+    catch (error){
+      //obsluga bęłdu
+      console.error("File read error", error);
+    }
+    finally {
+      setLoading(false)
+    }
+
   };
 
   // ---- useEffect: pobieranie danych ----
